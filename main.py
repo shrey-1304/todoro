@@ -52,7 +52,7 @@ if "username" not in st.session_state:
         st.session_state.username = remembered_user
 
 if "username" not in st.session_state:
-    st.title("📝 Productivity App Login")
+    st.title("📝 TODORO Login")
     st.markdown("<i>*Enter your credentials to continue*</i>", unsafe_allow_html=True)
 
     tab1, tab2 = st.tabs(["Login", "Sign Up"])
@@ -97,10 +97,10 @@ if "username" not in st.session_state:
 # ------------------------------
 # Main app (user is logged in)
 # ------------------------------
-st.set_page_config(page_title="Productivity App", page_icon="⏱️", layout="centered")
+st.set_page_config(page_title="TODORO", page_icon="⏱️", layout="centered")
 
 
-st.title("📝 Productivity App")
+st.title("📝 TODORO")
 st.markdown(f"<i>Welcome, {st.session_state.username}! Focus, Organize, Achieve, Repeat, Grow</i>", unsafe_allow_html=True)
 
 # ------------------------------
