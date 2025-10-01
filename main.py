@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 # ------------------------------
@@ -10,6 +10,30 @@ import os
 TASKS_FILE = "tasks.csv"
 HISTORY_FILE = "history.csv"
 USERS_FILE = "users.csv"
+SESSION_FILE = "session.txt"
+AUTO_LOGIN_DAYS = 2
+
+# ------------------------------
+# Session helpers
+# ------------------------------
+def load_session():
+    if os.path.exists(SESSION_FILE):
+        with open(SESSION_FILE, "r") as f:
+            line = f.read().strip()
+            if line:
+                username, timestamp = line.split(",")
+                timestamp = datetime.fromisoformat(timestamp)
+                if datetime.now() - timestamp < timedelta(days=AUTO_LOGIN_DAYS):
+                    return username
+    return None
+
+def save_session(username):
+    with open(SESSION_FILE, "w") as f:
+        f.write(f"{username},{datetime.now().isoformat()}")
+
+def clear_session():
+    if os.path.exists(SESSION_FILE):
+        os.remove(SESSION_FILE)
 
 # ------------------------------
 # Load users
@@ -22,6 +46,11 @@ else:
 # ------------------------------
 # Authentication
 # ------------------------------
+if "username" not in st.session_state:
+    remembered_user = load_session()
+    if remembered_user:
+        st.session_state.username = remembered_user
+
 if "username" not in st.session_state:
     st.title("📝 Productivity App Login")
     st.markdown("<i>*Enter your credentials to continue*</i>", unsafe_allow_html=True)
@@ -57,17 +86,20 @@ if "username" not in st.session_state:
                 user_row = users_df[(users_df["Username"]==username_input) & (users_df["Password"]==password_input)]
                 if not user_row.empty:
                     st.session_state.username = username_input
+                    save_session(username_input)  # Save for 2-day auto-login
                     st.session_state.update_flag = not st.session_state.get("update_flag", False)
                 else:
                     st.error("Invalid username or password!")
             else:
                 st.warning("Enter both username and password!")
-    st.stop()
+    st.stop()  # Stop until logged in
 
 # ------------------------------
 # Main app (user is logged in)
 # ------------------------------
 st.set_page_config(page_title="Productivity App", page_icon="⏱️", layout="centered")
+
+
 st.title("📝 Productivity App")
 st.markdown(f"<i>Welcome, {st.session_state.username}! Focus, Organize, Achieve, Repeat, Grow</i>", unsafe_allow_html=True)
 
@@ -180,3 +212,14 @@ else:
     st.write("No session history yet. Start focusing to track your productivity!")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+# Logout button
+col1, col2 = st.columns([7,1])
+with col2:
+    if st.button("Logout"):
+        for key in ["username", "update_flag"]:
+            if key in st.session_state:
+                del st.session_state[key]
+        clear_session()
+        st.session_state.update_flag = not st.session_state.get("update_flag", False)
+        st.stop()
