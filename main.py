@@ -126,10 +126,11 @@ if st.button("Save Session Progress"):
 # ------------------------------
 # 5️⃣ Productivity History
 # ------------------------------
-st.subheader("📊 Productivity History")
-if not history_df.empty:
-    st.dataframe(history_df)
-    st.write(f"Total Sessions: {len(history_df)}")
-    st.write(f"Total Completed Tasks: {history_df['Completed Tasks'].sum()}")
-else:
-    st.write("No session history yet. Start focusing to track your productivity!")
+with st.sidebar: 
+    st.subheader("📊 Productivity History")
+    if not history_df.empty:
+        st.dataframe(history_df)
+        st.write(f"Total Sessions: {len(history_df)}")
+        st.write(f"Total Completed Tasks: {history_df['Completed Tasks'].sum()}")
+    else:
+        st.write("No session history yet. Start focusing to track your productivity!")
